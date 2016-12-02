@@ -1,38 +1,55 @@
 Passthrough mixer for PX4IO
 ============================
 
-This file defines passthrough mixers suitable for testing.
-
-Channel group 0, channels 0-7 are passed directly through to the outputs.
+M0 mixer
+-----------------
+This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
+range.  Inputs below zero are treated as zero.
+Throttle is from Control Group #0, Channel 3
 
 M: 1
 O:      10000  10000      0 -10000  10000
-S: 0 0  10000  10000      0 -10000  10000
+S: 0 3  0      20000 -10000 -10000  10000
+
+M1, M3 mixer
+-----------------
+Throttle is from Control Group #0, Channel 3
+Roll is from Control Group #0, Channel 0
+
+M: 2
+O:      10000  10000     0  -10000  10000
+S: 0 3  0      15000 -7500  -10000  10000
+S: 0 0  2500   2500      0  -10000  10000
+
+T1-T4 mixer
+-----------------
+Pitch is from Control Group #0, Channel 1
 
 M: 1
 O:      10000  10000      0 -10000  10000
 S: 0 1  10000  10000      0 -10000  10000
 
+Roll Spoiler mixer
+-----------------
+Yaw is from Control Group #0, Channel 2
+
 M: 1
 O:      10000  10000      0 -10000  10000
 S: 0 2  10000  10000      0 -10000  10000
 
-M: 1
-O:      10000  10000      0 -10000  10000
-S: 0 3  10000  10000      0 -10000  10000
+M1, M3 mixer
+-----------------
+Throttle is from Control Group #0, Channel 3
+Roll is from Control Group #0, Channel 0
 
+M: 2
+O:      10000  10000     0  -10000  10000
+S: 0 3  0      15000  -7500 -10000  10000
+S: 0 0  -2500  -2500      0 -10000  10000
+
+T0 mixer
+-----------------
 M: 1
 O:      10000  10000      0 -10000  10000
 S: 0 4  10000  10000      0 -10000  10000
 
-M: 1
-O:      10000  10000      0 -10000  10000
-S: 0 5  10000  10000      0 -10000  10000
-
-M: 1
-O:      10000  10000      0 -10000  10000
-S: 0 6  10000  10000      0 -10000  10000
-
-M: 1
-O:      10000  10000      0 -10000  10000
-S: 0 7  10000  10000      0 -10000  10000
