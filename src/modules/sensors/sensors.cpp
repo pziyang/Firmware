@@ -259,7 +259,8 @@ private:
 	struct differential_pressure_s _diff_pres;
 	struct airspeed_s _airspeed;
 	struct rc_parameter_map_s _rc_parameter_map;
-	float _param_rc_values[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];	/**< parameter values for RC control */
+	struct vehicle_control_mode_s vcontrol_mode;
+    float _param_rc_values[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];	/**< parameter values for RC control */
 
 	math::Matrix<3, 3>	_board_rotation;	/**< rotation matrix for the orientation that the board is mounted */
 	math::Matrix<3, 3>	_mag_rotation[3];	/**< rotation matrix for the orientation that the external mag0 is mounted */
@@ -318,7 +319,7 @@ private:
 		int rc_map_param[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];
 
 		int rc_map_flightmode;
-
+        
 		int32_t rc_fails_thr;
 		float rc_assist_th;
 		float rc_auto_th;
@@ -351,6 +352,18 @@ private:
 		float baro_qnh;
 
 		float vibration_warning_threshold;
+
+        /* System identification additions */
+        int rc_map_sysid_sw;
+        float rc_sysid_th;
+        bool rc_sysid_inv;
+
+        float sid_amplitude;
+        float sid_on_time;
+        float sid_trim_time_b;
+        float sid_trim_time_a;
+        float sid_start_freq;
+        float sid_stop_freq;
 
 	}		_parameters;			/**< local copies of interesting parameters */
 
@@ -422,6 +435,17 @@ private:
 		param_t baro_qnh;
 
 		param_t vibe_thresh; /**< vibration threshold */
+
+        /* System identification */
+        param_t rc_map_sysid_sw;
+        param_t rc_sysid_th;
+        
+        param_t sid_amplitude;
+        param_t sid_on_time;
+        param_t sid_trim_time_b;
+        param_t sid_trim_time_a;
+        param_t sid_start_freq;
+        param_t sid_stop_freq;
 
 	}		_parameter_handles;		/**< handles for interesting parameters */
 
@@ -552,6 +576,11 @@ private:
 	 * Main sensor collection task.
 	 */
 	void		task_main();
+
+    /**
+     * Check if system id is performed
+     */
+    void check_sysid_manoeuvre(manual_control_setpoint_s *manual);
 };
 
 namespace sensors
@@ -663,6 +692,17 @@ Sensors::Sensors() :
 	_parameter_handles.rc_map_aux4 = param_find("RC_MAP_AUX4");
 	_parameter_handles.rc_map_aux5 = param_find("RC_MAP_AUX5");
 
+    /* System identification */
+    _parameter_handles.rc_map_sysid_sw = param_find("RC_MAP_SYSID_SW");
+    _parameter_handles.rc_sysid_th = param_find("RC_SYSID_TH");
+    
+    _parameter_handles.sid_amplitude = param_find("SID_AMPLITUDE");
+    _parameter_handles.sid_on_time = param_find("SID_ON_TIME");
+    _parameter_handles.sid_trim_time_b = param_find("SID_TRIM_TIME_B");
+    _parameter_handles.sid_trim_time_a = param_find("SID_TRIM_TIME_A");
+    _parameter_handles.sid_start_freq = param_find("SID_START_FREQ");
+    _parameter_handles.sid_stop_freq = param_find("SID_STOP_FREQ");
+
 	/* RC to parameter mapping for changing parameters with RC */
 	for (int i = 0; i < rc_parameter_map_s::RC_PARAM_MAP_NCHAN; i++) {
 		char name[rc_parameter_map_s::PARAM_ID_LEN];
@@ -685,7 +725,6 @@ Sensors::Sensors() :
 	_parameter_handles.rc_offboard_th = param_find("RC_OFFB_TH");
 	_parameter_handles.rc_killswitch_th = param_find("RC_KILLSWITCH_TH");
 	_parameter_handles.rc_trans_th = param_find("RC_TRANS_TH");
-
 
 	/* Differential pressure offset */
 	_parameter_handles.diff_pres_offset_pa = param_find("SENS_DPRES_OFF");
@@ -866,6 +905,11 @@ Sensors::parameters_update()
 		PX4_WARN("%s", paramerr);
 	}
 
+    /* System Identification */
+	if (param_get(_parameter_handles.rc_map_sysid_sw, &(_parameters.rc_map_sysid_sw)) != OK) {
+		PX4_WARN("%s", paramerr);
+    }
+
 	param_get(_parameter_handles.rc_map_aux1, &(_parameters.rc_map_aux1));
 	param_get(_parameter_handles.rc_map_aux2, &(_parameters.rc_map_aux2));
 	param_get(_parameter_handles.rc_map_aux3, &(_parameters.rc_map_aux3));
@@ -910,6 +954,10 @@ Sensors::parameters_update()
 	_parameters.rc_trans_inv = (_parameters.rc_trans_th < 0);
 	_parameters.rc_trans_th = fabs(_parameters.rc_trans_th);
 
+    /* System Identication */
+    param_get(_parameter_handles.rc_sysid_th, &(_parameters.rc_sysid_th));
+    _parameters.rc_sysid_inv = (_parameters.rc_sysid_th < 0);
+    _parameters.rc_sysid_th = fabs(_parameters.rc_sysid_th);
 	/* update RC function mappings */
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_THROTTLE] = _parameters.rc_map_throttle - 1;
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_ROLL] = _parameters.rc_map_roll - 1;
@@ -933,6 +981,8 @@ Sensors::parameters_update()
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_AUX_3] = _parameters.rc_map_aux3 - 1;
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_AUX_4] = _parameters.rc_map_aux4 - 1;
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_AUX_5] = _parameters.rc_map_aux5 - 1;
+
+    _rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_SYSIDSWITCH] = _parameters.rc_map_sysid_sw - 1;
 
 	for (int i = 0; i < rc_parameter_map_s::RC_PARAM_MAP_NCHAN; i++) {
 		_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_PARAM_1 + i] = _parameters.rc_map_param[i] - 1;
@@ -1026,7 +1076,14 @@ Sensors::parameters_update()
 					 M_DEG_TO_RAD_F * _parameters.board_offset[1],
 					 M_DEG_TO_RAD_F * _parameters.board_offset[2]);
 
-	_board_rotation = board_rotation_offset * _board_rotation;
+    _board_rotation = board_rotation_offset * _board_rotation;
+
+    param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
+    param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
+    param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
+    param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
+    param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
+    param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));
 
 	/* update barometer qnh setting */
 	param_get(_parameter_handles.baro_qnh, &(_parameters.baro_qnh));
@@ -1344,7 +1401,6 @@ Sensors::diff_pres_poll(struct sensor_combined_s &raw)
 void
 Sensors::vehicle_control_mode_poll()
 {
-	struct vehicle_control_mode_s vcontrol_mode;
 	bool vcontrol_mode_updated;
 
 	/* Check HIL state if vehicle control mode has changed */
@@ -2131,6 +2187,12 @@ Sensors::rc_poll()
 			manual.transition_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_TRANSITION,
 						   _parameters.rc_trans_th, _parameters.rc_trans_inv);
 
+            /* check for system identification */
+            manual.sysid_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_SYSIDSWITCH, _parameters.rc_sysid_th,
+                                              _parameters.rc_sysid_inv);
+            
+            check_sysid_manoeuvre(&manual);
+
 			/* publish manual_control_setpoint topic */
 			if (_manual_control_pub != nullptr) {
 				orb_publish(ORB_ID(manual_control_setpoint), _manual_control_pub, &manual);
@@ -2464,6 +2526,52 @@ Sensors::task_main()
 
 	_sensors_task = -1;
 	px4_task_exit(ret);
+}
+
+void
+Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
+{
+    static bool is_doing_manoeuvre = false;
+    static uint64_t starting_time = 0;
+    static int _prev_sysid_sw_pos = manual_control_setpoint_s::SWITCH_POS_OFF;
+    static float signal_injection = 0.0f;
+
+    if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_ON)
+            && (manual->sysid_switch != _prev_sysid_sw_pos)) {
+        is_doing_manoeuvre = !is_doing_manoeuvre;
+        starting_time = hrt_absolute_time();
+        mavlink_and_console_log_info(&_mavlink_log_pub, "sid manoeuvre started");
+    }
+
+    if (!vcontrol_mode.flag_control_manual_enabled) {
+        is_doing_manoeuvre = false;
+    }
+
+    if (is_doing_manoeuvre) {
+        float dt = static_cast<float>(hrt_absolute_time() - starting_time) / 1e6f; //calculate dt in seconds
+        
+        if (dt > _parameters.sid_on_time + _parameters.sid_trim_time_b + _parameters.sid_trim_time_a) {
+            is_doing_manoeuvre = false;
+
+        } else {
+
+            if (dt < _parameters.sid_trim_time_b || dt > _parameters.sid_on_time + _parameters.sid_trim_time_b) {
+                signal_injection = 0.0f;
+
+            } else {
+                float progress = (dt - _parameters.sid_trim_time_b) / _parameters.sid_on_time;
+                float current_freq = _parameters.sid_start_freq + (_parameters.sid_stop_freq - _parameters.sid_start_freq) * progress;
+                signal_injection = _parameters.sid_amplitude * (float)sin(M_TWOPI_F * current_freq * (dt - _parameters.sid_trim_time_b));
+            }
+        }
+    }
+    else {
+	signal_injection = 0.0;
+    }
+
+    manual->x = signal_injection;
+
+    _prev_sysid_sw_pos = manual->sysid_switch;
 }
 
 int
