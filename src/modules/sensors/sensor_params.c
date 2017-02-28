@@ -3292,7 +3292,7 @@ PARAM_DEFINE_FLOAT(SID_TRIM_TIME_A, 1.0f);
  * @decimal 1
  * @group SysID
  */
-PARAM_DEFINE_FLOAT(SID_START_FREQ, 1.0f);
+PARAM_DEFINE_FLOAT(SID_START_FREQ, 0.1f);
 
 /**
 * Define the Stop frequency of the sysID manoeuvre
@@ -3303,4 +3303,19 @@ PARAM_DEFINE_FLOAT(SID_START_FREQ, 1.0f);
 * @decimal 1
 * @group SysID
 */
-+PARAM_DEFINE_FLOAT(SID_STOP_FREQ, 1.0f);
+PARAM_DEFINE_FLOAT(SID_STOP_FREQ, 5.0f);
+
+/**
+* Define the Manoever
+*
+* @min 0
+* @max 4
+* @unit
+* @value 0 Disabled
+* @value 1 Pitch
+* @value 2 Roll
+* @value 3 Yaw
+* @value 4 Throttle
+* @group SysID
+*/
+PARAM_DEFINE_INT32(SID_MANOEUVRE, 0);

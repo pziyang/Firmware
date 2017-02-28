@@ -358,6 +358,7 @@ private:
         float rc_sysid_th;
         bool rc_sysid_inv;
 
+		int sid_manoeuvre;
         float sid_amplitude;
         float sid_on_time;
         float sid_trim_time_b;
@@ -440,6 +441,7 @@ private:
         param_t rc_map_sysid_sw;
         param_t rc_sysid_th;
         
+        param_t sid_manoeuvre;
         param_t sid_amplitude;
         param_t sid_on_time;
         param_t sid_trim_time_b;
@@ -696,6 +698,7 @@ Sensors::Sensors() :
     _parameter_handles.rc_map_sysid_sw = param_find("RC_MAP_SYSID_SW");
     _parameter_handles.rc_sysid_th = param_find("RC_SYSID_TH");
     
+    _parameter_handles.sid_manoeuvre = param_find("SID_MANOEUVRE");
     _parameter_handles.sid_amplitude = param_find("SID_AMPLITUDE");
     _parameter_handles.sid_on_time = param_find("SID_ON_TIME");
     _parameter_handles.sid_trim_time_b = param_find("SID_TRIM_TIME_B");
@@ -1078,6 +1081,7 @@ Sensors::parameters_update()
 
     _board_rotation = board_rotation_offset * _board_rotation;
 
+	param_get(_parameter_handles.sid_manoeuvre, &(_parameters.sid_manoeuvre));
     param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
     param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
     param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
@@ -2566,10 +2570,27 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
         }
     }
     else {
-	signal_injection = 0.0;
+		signal_injection = 0.0;
     }
 
-    manual->x = signal_injection;
+	switch (_parameters.sid_manoeuvre)
+	{
+		case 1:
+			manual->x += signal_injection;
+			break;
+		case 2:
+			manual->y += signal_injection;
+			break;
+		case 3:
+			manual->r += signal_injection;
+			break;
+		case 4:
+			manual->z += signal_injection;
+			break;
+		default:
+			is_doing_manoeuvre = false;
+			break;
+	}
 
     _prev_sysid_sw_pos = manual->sysid_switch;
 }
