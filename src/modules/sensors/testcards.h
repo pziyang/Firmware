@@ -41,3 +41,5 @@ struct testcard_s {
 	float time_a;
 	float time_b;
 };
+
+int testcard_init(vector<testcard_s>& testcards);
