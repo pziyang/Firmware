@@ -64,6 +64,7 @@
 #include <errno.h>
 #include <math.h>
 #include <mathlib/mathlib.h>
+#include <vector>
 
 #include <drivers/drv_hrt.h>
 #include <drivers/drv_accel.h>
@@ -103,6 +104,7 @@
 #include <DevMgr.hpp>
 
 #include "sensors_init.h"
+#include "testcards.h"
 
 using namespace DriverFramework;
 
@@ -583,6 +585,8 @@ private:
 	 * Check if system id is performed
 	 */
 	void check_sysid_manoeuvre(manual_control_setpoint_s *manual);
+	
+	std::vector<testcard_s> _testcards;
 };
 
 namespace sensors
@@ -2333,6 +2337,9 @@ Sensors::task_main()
 
 	/* This calls a sensors_init which can have different implementations on NuttX, POSIX, QURT. */
 	ret = sensors_init();
+	
+	/* This loads the test cards */
+	ret = testcard_init();
 
 #if !defined(__PX4_QURT) && !defined(__PX4_POSIX_RPI) && !defined(__PX4_POSIX_BEBOP)
 	// TODO: move adc_init into the sensors_init call.
