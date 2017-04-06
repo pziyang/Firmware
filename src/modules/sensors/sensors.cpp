@@ -260,7 +260,7 @@ private:
 	struct airspeed_s _airspeed;
 	struct rc_parameter_map_s _rc_parameter_map;
 	struct vehicle_control_mode_s vcontrol_mode;
-    float _param_rc_values[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];	/**< parameter values for RC control */
+	float _param_rc_values[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];	/**< parameter values for RC control */
 
 	math::Matrix<3, 3>	_board_rotation;	/**< rotation matrix for the orientation that the board is mounted */
 	math::Matrix<3, 3>	_mag_rotation[3];	/**< rotation matrix for the orientation that the external mag0 is mounted */
@@ -319,7 +319,7 @@ private:
 		int rc_map_param[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];
 
 		int rc_map_flightmode;
-        
+		
 		int32_t rc_fails_thr;
 		float rc_assist_th;
 		float rc_auto_th;
@@ -353,18 +353,18 @@ private:
 
 		float vibration_warning_threshold;
 
-        /* System identification additions */
-        int rc_map_sysid_sw;
-        float rc_sysid_th;
-        bool rc_sysid_inv;
+		/* System identification additions */
+		int rc_map_sysid_sw;
+		float rc_sysid_th;
+		bool rc_sysid_inv;
 
 		int sid_manoeuvre;
-        float sid_amplitude;
-        float sid_on_time;
-        float sid_trim_time_b;
-        float sid_trim_time_a;
-        float sid_start_freq;
-        float sid_stop_freq;
+		float sid_amplitude;
+		float sid_on_time;
+		float sid_trim_time_b;
+		float sid_trim_time_a;
+		float sid_start_freq;
+		float sid_stop_freq;
 
 	}		_parameters;			/**< local copies of interesting parameters */
 
@@ -437,17 +437,17 @@ private:
 
 		param_t vibe_thresh; /**< vibration threshold */
 
-        /* System identification */
-        param_t rc_map_sysid_sw;
-        param_t rc_sysid_th;
-        
-        param_t sid_manoeuvre;
-        param_t sid_amplitude;
-        param_t sid_on_time;
-        param_t sid_trim_time_b;
-        param_t sid_trim_time_a;
-        param_t sid_start_freq;
-        param_t sid_stop_freq;
+		/* System identification */
+		param_t rc_map_sysid_sw;
+		param_t rc_sysid_th;
+		
+		param_t sid_manoeuvre;
+		param_t sid_amplitude;
+		param_t sid_on_time;
+		param_t sid_trim_time_b;
+		param_t sid_trim_time_a;
+		param_t sid_start_freq;
+		param_t sid_stop_freq;
 
 	}		_parameter_handles;		/**< handles for interesting parameters */
 
@@ -579,10 +579,10 @@ private:
 	 */
 	void		task_main();
 
-    /**
-     * Check if system id is performed
-     */
-    void check_sysid_manoeuvre(manual_control_setpoint_s *manual);
+	/**
+	 * Check if system id is performed
+	 */
+	void check_sysid_manoeuvre(manual_control_setpoint_s *manual);
 };
 
 namespace sensors
@@ -694,17 +694,17 @@ Sensors::Sensors() :
 	_parameter_handles.rc_map_aux4 = param_find("RC_MAP_AUX4");
 	_parameter_handles.rc_map_aux5 = param_find("RC_MAP_AUX5");
 
-    /* System identification */
-    _parameter_handles.rc_map_sysid_sw = param_find("RC_MAP_SYSID_SW");
-    _parameter_handles.rc_sysid_th = param_find("RC_SYSID_TH");
-    
-    _parameter_handles.sid_manoeuvre = param_find("SID_MANOEUVRE");
-    _parameter_handles.sid_amplitude = param_find("SID_AMPLITUDE");
-    _parameter_handles.sid_on_time = param_find("SID_ON_TIME");
-    _parameter_handles.sid_trim_time_b = param_find("SID_TRIM_TIME_B");
-    _parameter_handles.sid_trim_time_a = param_find("SID_TRIM_TIME_A");
-    _parameter_handles.sid_start_freq = param_find("SID_START_FREQ");
-    _parameter_handles.sid_stop_freq = param_find("SID_STOP_FREQ");
+	/* System identification */
+	_parameter_handles.rc_map_sysid_sw = param_find("RC_MAP_SYSID_SW");
+	_parameter_handles.rc_sysid_th = param_find("RC_SYSID_TH");
+	
+	_parameter_handles.sid_manoeuvre = param_find("SID_MANOEUVRE");
+	_parameter_handles.sid_amplitude = param_find("SID_AMPLITUDE");
+	_parameter_handles.sid_on_time = param_find("SID_ON_TIME");
+	_parameter_handles.sid_trim_time_b = param_find("SID_TRIM_TIME_B");
+	_parameter_handles.sid_trim_time_a = param_find("SID_TRIM_TIME_A");
+	_parameter_handles.sid_start_freq = param_find("SID_START_FREQ");
+	_parameter_handles.sid_stop_freq = param_find("SID_STOP_FREQ");
 
 	/* RC to parameter mapping for changing parameters with RC */
 	for (int i = 0; i < rc_parameter_map_s::RC_PARAM_MAP_NCHAN; i++) {
@@ -828,8 +828,8 @@ Sensors::parameters_update()
 
 		/* handle blowup in the scaling factor calculation */
 		if (!PX4_ISFINITE(tmpScaleFactor) ||
-		    (tmpRevFactor < 0.000001f) ||
-		    (tmpRevFactor > 0.2f)) {
+			(tmpRevFactor < 0.000001f) ||
+			(tmpRevFactor > 0.2f)) {
 			PX4_WARN("RC chan %u not sane, scaling: %8.6f, rev: %d", i, (double)tmpScaleFactor, (int)(_parameters.rev[i]));
 			/* scaling factors do not make sense, lock them down */
 			_parameters.scaling_factor[i] = 0.0f;
@@ -908,10 +908,10 @@ Sensors::parameters_update()
 		PX4_WARN("%s", paramerr);
 	}
 
-    /* System Identification */
+	/* System Identification */
 	if (param_get(_parameter_handles.rc_map_sysid_sw, &(_parameters.rc_map_sysid_sw)) != OK) {
 		PX4_WARN("%s", paramerr);
-    }
+	}
 
 	param_get(_parameter_handles.rc_map_aux1, &(_parameters.rc_map_aux1));
 	param_get(_parameter_handles.rc_map_aux2, &(_parameters.rc_map_aux2));
@@ -957,10 +957,10 @@ Sensors::parameters_update()
 	_parameters.rc_trans_inv = (_parameters.rc_trans_th < 0);
 	_parameters.rc_trans_th = fabs(_parameters.rc_trans_th);
 
-    /* System Identication */
-    param_get(_parameter_handles.rc_sysid_th, &(_parameters.rc_sysid_th));
-    _parameters.rc_sysid_inv = (_parameters.rc_sysid_th < 0);
-    _parameters.rc_sysid_th = fabs(_parameters.rc_sysid_th);
+	/* System Identication */
+	param_get(_parameter_handles.rc_sysid_th, &(_parameters.rc_sysid_th));
+	_parameters.rc_sysid_inv = (_parameters.rc_sysid_th < 0);
+	_parameters.rc_sysid_th = fabs(_parameters.rc_sysid_th);
 	/* update RC function mappings */
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_THROTTLE] = _parameters.rc_map_throttle - 1;
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_ROLL] = _parameters.rc_map_roll - 1;
@@ -985,7 +985,7 @@ Sensors::parameters_update()
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_AUX_4] = _parameters.rc_map_aux4 - 1;
 	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_AUX_5] = _parameters.rc_map_aux5 - 1;
 
-    _rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_SYSIDSWITCH] = _parameters.rc_map_sysid_sw - 1;
+	_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_SYSIDSWITCH] = _parameters.rc_map_sysid_sw - 1;
 
 	for (int i = 0; i < rc_parameter_map_s::RC_PARAM_MAP_NCHAN; i++) {
 		_rc.function[rc_channels_s::RC_CHANNELS_FUNCTION_PARAM_1 + i] = _parameters.rc_map_param[i] - 1;
@@ -1079,15 +1079,15 @@ Sensors::parameters_update()
 					 M_DEG_TO_RAD_F * _parameters.board_offset[1],
 					 M_DEG_TO_RAD_F * _parameters.board_offset[2]);
 
-    _board_rotation = board_rotation_offset * _board_rotation;
+	_board_rotation = board_rotation_offset * _board_rotation;
 
 	param_get(_parameter_handles.sid_manoeuvre, &(_parameters.sid_manoeuvre));
-    param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
-    param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
-    param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
-    param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
-    param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
-    param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));
+	param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
+	param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
+	param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
+	param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
+	param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
+	param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));
 
 	/* update barometer qnh setting */
 	param_get(_parameter_handles.baro_qnh, &(_parameters.baro_qnh));
@@ -1295,7 +1295,7 @@ Sensors::mag_poll(struct sensor_combined_s &raw)
 
 			_last_mag_timestamp[i] = mag_report.timestamp;
 			_mag.voter.put(i, mag_report.timestamp, vect.data,
-				       mag_report.error_count, _mag.priority[i]);
+					   mag_report.error_count, _mag.priority[i]);
 		}
 	}
 
@@ -1907,7 +1907,7 @@ Sensors::adc_poll(struct sensor_combined_s &raw)
 				actuator_controls_s ctrl;
 				orb_copy(ORB_ID(actuator_controls_0), _actuator_ctrl_0_sub, &ctrl);
 				_battery.updateBatteryStatus(t, bat_voltage_v, bat_current_a, ctrl.control[actuator_controls_s::INDEX_THROTTLE],
-							     _armed, &_battery_status);
+								 _armed, &_battery_status);
 
 				/* announce the battery status if needed, just publish else */
 				if (_battery_pub != nullptr) {
@@ -2043,7 +2043,7 @@ Sensors::rc_poll()
 			if (_parameters.rc_fails_thr > 0 && fs_ch >= 0) {
 				/* failsafe configured */
 				if ((_parameters.rc_fails_thr < _parameters.min[fs_ch] && rc_input.values[fs_ch] < _parameters.rc_fails_thr) ||
-				    (_parameters.rc_fails_thr > _parameters.max[fs_ch] && rc_input.values[fs_ch] > _parameters.rc_fails_thr)) {
+					(_parameters.rc_fails_thr > _parameters.max[fs_ch] && rc_input.values[fs_ch] > _parameters.rc_fails_thr)) {
 					/* failsafe triggered, signal is lost by receiver */
 					signal_lost = true;
 				}
@@ -2163,7 +2163,7 @@ Sensors::rc_poll()
 				 * will take us to the correct final index.
 				 */
 				manual.mode_slot = (((((_rc.channels[_parameters.rc_map_flightmode - 1] - slot_min) * num_slots) + slot_width_half) /
-						     (slot_max - slot_min)) + (1.0f / num_slots));
+							 (slot_max - slot_min)) + (1.0f / num_slots));
 
 				if (manual.mode_slot >= num_slots) {
 					manual.mode_slot = num_slots - 1;
@@ -2172,30 +2172,30 @@ Sensors::rc_poll()
 
 			/* mode switches */
 			manual.mode_switch = get_rc_sw3pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_MODE, _parameters.rc_auto_th,
-					     _parameters.rc_auto_inv, _parameters.rc_assist_th, _parameters.rc_assist_inv);
+						 _parameters.rc_auto_inv, _parameters.rc_assist_th, _parameters.rc_assist_inv);
 			manual.rattitude_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_RATTITUDE,
 						  _parameters.rc_rattitude_th,
 						  _parameters.rc_rattitude_inv);
 			manual.posctl_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_POSCTL, _parameters.rc_posctl_th,
-					       _parameters.rc_posctl_inv);
+						   _parameters.rc_posctl_inv);
 			manual.return_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_RETURN, _parameters.rc_return_th,
-					       _parameters.rc_return_inv);
+						   _parameters.rc_return_inv);
 			manual.loiter_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_LOITER, _parameters.rc_loiter_th,
-					       _parameters.rc_loiter_inv);
+						   _parameters.rc_loiter_inv);
 			manual.acro_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_ACRO, _parameters.rc_acro_th,
-					     _parameters.rc_acro_inv);
+						 _parameters.rc_acro_inv);
 			manual.offboard_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_OFFBOARD,
 						 _parameters.rc_offboard_th, _parameters.rc_offboard_inv);
 			manual.kill_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_KILLSWITCH,
-					     _parameters.rc_killswitch_th, _parameters.rc_killswitch_inv);
+						 _parameters.rc_killswitch_th, _parameters.rc_killswitch_inv);
 			manual.transition_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_TRANSITION,
 						   _parameters.rc_trans_th, _parameters.rc_trans_inv);
 
-            /* check for system identification */
-            manual.sysid_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_SYSIDSWITCH, _parameters.rc_sysid_th,
-                                              _parameters.rc_sysid_inv);
-            
-            check_sysid_manoeuvre(&manual);
+			/* check for system identification */
+			manual.sysid_switch = get_rc_sw2pos_position(rc_channels_s::RC_CHANNELS_FUNCTION_SYSIDSWITCH, _parameters.rc_sysid_th,
+											  _parameters.rc_sysid_inv);
+			
+			check_sysid_manoeuvre(&manual);
 
 			/* publish manual_control_setpoint topic */
 			if (_manual_control_pub != nullptr) {
@@ -2274,8 +2274,8 @@ Sensors::check_vibration()
 	hrt_abstime cur_time = hrt_absolute_time();
 
 	if (!_vibration_warning && (_gyro.voter.get_vibration_factor(cur_time) > _parameters.vibration_warning_threshold ||
-				    _accel.voter.get_vibration_factor(cur_time) > _parameters.vibration_warning_threshold ||
-				    _mag.voter.get_vibration_factor(cur_time) > _parameters.vibration_warning_threshold)) {
+					_accel.voter.get_vibration_factor(cur_time) > _parameters.vibration_warning_threshold ||
+					_mag.voter.get_vibration_factor(cur_time) > _parameters.vibration_warning_threshold)) {
 
 		if (_vibration_warning_timestamp == 0) {
 			_vibration_warning_timestamp = cur_time;
@@ -2535,43 +2535,58 @@ Sensors::task_main()
 void
 Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 {
-    static bool is_doing_manoeuvre = false;
-    static uint64_t starting_time = 0;
-    static int _prev_sysid_sw_pos = manual_control_setpoint_s::SWITCH_POS_OFF;
-    static float signal_injection = 0.0f;
+	static bool is_doing_manoeuvre = false;
+	static uint64_t starting_time = 0;
+	static int _prev_sysid_sw_pos = manual_control_setpoint_s::SWITCH_POS_OFF;
+	static float signal_injection = 0.0f;
 
-    if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_ON)
-            && (manual->sysid_switch != _prev_sysid_sw_pos)) {
-        is_doing_manoeuvre = !is_doing_manoeuvre;
-        starting_time = hrt_absolute_time();
-        mavlink_and_console_log_info(&_mavlink_log_pub, "sid manoeuvre started");
-    }
+	//check for toggle on from toggle off. This is to fix the starting time and start signal injection
+	if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_ON)
+			&& (manual->sysid_switch != _prev_sysid_sw_pos)) {
+		is_doing_manoeuvre = true;
+		starting_time = hrt_absolute_time();
+		mavlink_and_console_log_info(&_mavlink_log_pub, "sid manoeuvre started");
+	}
+	
+	//check if switch is held down. If switch is not held down for entire duration, signal interrupted
+	if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_OFF) 
+			&& (is_doing_manoeuvre)) {
+		is_doing_manoeuvre = false;
+		mavlink_and_console_log_info(&_mavlink_log_pub, "sid manoeuvre interrupted");
+	}
+	
+	//check if switch is held down after system id duration has expired, signal finished
+	if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_ON)
+			&& (!is_doing_manoeuvre)) {
+		mavlink_and_console_log_info(&_mavlink_log_pub, "sid manoeuvre finished");
+	}
 
-    if (!vcontrol_mode.flag_control_manual_enabled) {
-        is_doing_manoeuvre = false;
-    }
+	//check if manual control is disabled
+	if (!vcontrol_mode.flag_control_manual_enabled) {
+		is_doing_manoeuvre = false;
+	}
 
-    if (is_doing_manoeuvre) {
-        float dt = static_cast<float>(hrt_absolute_time() - starting_time) / 1e6f; //calculate dt in seconds
-        
-        if (dt > _parameters.sid_on_time + _parameters.sid_trim_time_b + _parameters.sid_trim_time_a) {
-            is_doing_manoeuvre = false;
+	if (is_doing_manoeuvre) {
+		float dt = static_cast<float>(hrt_absolute_time() - starting_time) / 1e6f; //calculate dt in seconds
+		
+		if (dt > _parameters.sid_on_time + _parameters.sid_trim_time_b + _parameters.sid_trim_time_a) {
+			is_doing_manoeuvre = false;
 
-        } else {
+		} else {
 
-            if (dt < _parameters.sid_trim_time_b || dt > _parameters.sid_on_time + _parameters.sid_trim_time_b) {
-                signal_injection = 0.0f;
+			if (dt < _parameters.sid_trim_time_b || dt > _parameters.sid_on_time + _parameters.sid_trim_time_b) {
+				signal_injection = 0.0f;
 
-            } else {
-                float progress = (dt - _parameters.sid_trim_time_b) / _parameters.sid_on_time;
-                float current_freq = _parameters.sid_start_freq + (_parameters.sid_stop_freq - _parameters.sid_start_freq) * progress;
-                signal_injection = _parameters.sid_amplitude * (float)sin(M_TWOPI_F * current_freq * (dt - _parameters.sid_trim_time_b));
-            }
-        }
-    }
-    else {
+			} else {
+				float progress = (dt - _parameters.sid_trim_time_b) / _parameters.sid_on_time;
+				float current_freq = _parameters.sid_start_freq + (_parameters.sid_stop_freq - _parameters.sid_start_freq) * progress;
+				signal_injection = _parameters.sid_amplitude * (float)sin(M_TWOPI_F * current_freq * (dt - _parameters.sid_trim_time_b));
+			}
+		}
+	}
+	else {
 		signal_injection = 0.0;
-    }
+	}
 
 	switch (_parameters.sid_manoeuvre)
 	{
@@ -2592,7 +2607,7 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 			break;
 	}
 
-    _prev_sysid_sw_pos = manual->sysid_switch;
+	_prev_sysid_sw_pos = manual->sysid_switch;
 }
 
 int
