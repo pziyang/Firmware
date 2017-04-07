@@ -33,15 +33,17 @@ int testcard_init(testcard_s* &testcard_array, int& ncase)
 	for (int i = 0; i < ncase; i++) {
 		
 		fgets(line, sizeof(line), fp);
-        int ret = sscanf(line, "%x %f %f %f %f %f",
+        int ret = sscanf(line, "%x %x %f %f %f %f %f %f",
 						 &(testcard_array[i].id),
-						 &(testcard_array[i].freq),
-						 &(testcard_array[i].duration),
+						 &(testcard_array[i].channel),
 						 &(testcard_array[i].amp),
+						 &(testcard_array[i].freq_start),
+						 &(testcard_array[i].freq_stop),
+						 &(testcard_array[i].on_time),
 						 &(testcard_array[i].time_a),
 						 &(testcard_array[i].time_b));
 
-		if (ret != 6) {
+		if (ret != 8) {
 			warnx("Invalid number of parameters in test card");
 			return -1;
 		}

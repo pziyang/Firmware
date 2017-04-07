@@ -35,9 +35,11 @@
 
 struct testcard_s {
 	int id;
-	float freq;
-	float duration;
+	int channel;
 	float amp;
+	float freq_start;
+	float freq_stop;
+	float on_time;
 	float time_a;
 	float time_b;
 };

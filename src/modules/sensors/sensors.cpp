@@ -361,6 +361,8 @@ private:
 		bool rc_sysid_inv;
 
 		int sid_manoeuvre;
+		int sid_testcard;
+		int sid_channel;
 		float sid_amplitude;
 		float sid_on_time;
 		float sid_trim_time_b;
@@ -444,6 +446,8 @@ private:
 		param_t rc_sysid_th;
 		
 		param_t sid_manoeuvre;
+		param_t sid_testcard;
+		param_t sid_channel;		
 		param_t sid_amplitude;
 		param_t sid_on_time;
 		param_t sid_trim_time_b;
@@ -704,6 +708,8 @@ Sensors::Sensors() :
 	_parameter_handles.rc_sysid_th = param_find("RC_SYSID_TH");
 	
 	_parameter_handles.sid_manoeuvre = param_find("SID_MANOEUVRE");
+	_parameter_handles.sid_testcard = param_find("SID_TESTCARD");
+	_parameter_handles.sid_channel = param_find("SID_CHANNEL");
 	_parameter_handles.sid_amplitude = param_find("SID_AMPLITUDE");
 	_parameter_handles.sid_on_time = param_find("SID_ON_TIME");
 	_parameter_handles.sid_trim_time_b = param_find("SID_TRIM_TIME_B");
@@ -1086,13 +1092,40 @@ Sensors::parameters_update()
 
 	_board_rotation = board_rotation_offset * _board_rotation;
 
+	//get system id
 	param_get(_parameter_handles.sid_manoeuvre, &(_parameters.sid_manoeuvre));
-	param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
-	param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
-	param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
-	param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
-	param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
-	param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));
+	
+	if (_parameters.sid_manoeuvre == 2) //manual input from QGC
+	{
+		param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
+		param_get(_parameter_handles.sid_channel, &(_parameters.sid_channel));
+		param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
+		param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
+		param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
+		param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
+		param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));	
+	}
+	
+	if (_parameters.sid_manoeuvre == 1) //load test cards
+	{
+		param_get(_parameter_handles.sid_testcard, &(_parameters.sid_testcard));
+		
+		if(_parameter_handles.sid_testcard > 0 &&
+			_parameter_handles.sid_testcard < _ncase ) //check that input is valid
+		{
+			_parameter_handles.sid_channel = _testcards[_parameter_handles.sid_testcard].channel;
+			_parameter_handles.sid_amplitude = _testcards[_parameter_handles.sid_testcard].amp;
+			_parameter_handles.sid_on_time = _testcards[_parameter_handles.sid_testcard].on_time;
+			_parameter_handles.sid_trim_time_b = _testcards[_parameter_handles.sid_testcard].time_b;
+			_parameter_handles.sid_trim_time_a = _testcards[_parameter_handles.sid_testcard].time_a;
+			_parameter_handles.sid_start_freq = _testcards[_parameter_handles.sid_testcard].freq_start;
+			_parameter_handles.sid_stop_freq = _testcards[_parameter_handles.sid_testcard].freq_stop;
+		}
+		else 
+		{
+			_parameter_handles.sid_channel = 0; //disable input
+		}
+	}
 
 	/* update barometer qnh setting */
 	param_get(_parameter_handles.baro_qnh, &(_parameters.baro_qnh));
