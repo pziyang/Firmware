@@ -586,7 +586,8 @@ private:
 	 */
 	void check_sysid_manoeuvre(manual_control_setpoint_s *manual);
 	
-	std::vector<testcard_s> _testcards;
+	testcard_s* _testcards;
+	int _ncase;
 };
 
 namespace sensors
@@ -2339,7 +2340,7 @@ Sensors::task_main()
 	ret = sensors_init();
 	
 	/* This loads the test cards */
-	ret = testcard_init(_testcards);
+	ret = testcard_init(_testcards, _ncase);
 
 #if !defined(__PX4_QURT) && !defined(__PX4_POSIX_RPI) && !defined(__PX4_POSIX_BEBOP)
 	// TODO: move adc_init into the sensors_init call.
