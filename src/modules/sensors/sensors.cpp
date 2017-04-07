@@ -2339,7 +2339,7 @@ Sensors::task_main()
 	ret = sensors_init();
 	
 	/* This loads the test cards */
-	ret = testcard_init();
+	ret = testcard_init(_testcards);
 
 #if !defined(__PX4_QURT) && !defined(__PX4_POSIX_RPI) && !defined(__PX4_POSIX_BEBOP)
 	// TODO: move adc_init into the sensors_init call.

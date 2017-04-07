@@ -4,15 +4,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sstream>
+#include <fstream>
 #include <stdbool.h>
 #include <stdio.h>
+#include <vector>
+
+#include <px4_defines.h>
 
 #include "testcards.h"
 
 #define MOUNTPOINT PX4_ROOTFSDIR"/fs/microsd"
 static const char *log_root = MOUNTPOINT "/testcards/testcards.txt";
 
-int testcard_init(vector<testcard_s>& testcards)
+int testcard_init(std::vector<testcard_s>& testcards)
 {
     std::fstream fs;
     fs.open (log_root, std::fstream::in);

@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include <vector>
+
 struct testcard_s {
 	int id;
 	float freq;
@@ -42,4 +44,4 @@ struct testcard_s {
 	float time_b;
 };
 
-int testcard_init(vector<testcard_s>& testcards);
+int testcard_init(std::vector<testcard_s>& testcards);
