@@ -23,11 +23,16 @@ int testcard_init(testcard_s* &testcard_array, int& ncase)
 		return -1;
 	}
 	
+	//skip first 3 lines of text file
+	fgets(line, sizeof(line), fp);
+	fgets(line, sizeof(line), fp);
+	fgets(line, sizeof(line), fp);
+	
 	/* find number of testcards */
 	fgets(line, sizeof(line), fp);
 
 	/* allocate memory */
-    ncase = atoi(line);
+	ncase = atoi(line);
 	testcard_array = new testcard_s[ncase];
 
 	for (int i = 0; i < ncase; i++) {
