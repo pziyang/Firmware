@@ -972,7 +972,6 @@ FixedwingAttitudeControl::task_main()
 				float roll_sp = _parameters.rollsp_offset_rad;
 				float pitch_sp = _parameters.pitchsp_offset_rad;
 				float yaw_sp = 0.0f;
-				float yaw_manual = 0.0f;
 				float throttle_sp = 0.0f;
 
 				// in STABILIZED mode we need to generate the attitude setpoint
@@ -982,7 +981,7 @@ FixedwingAttitudeControl::task_main()
 					_att_sp.roll_body = math::constrain(_att_sp.roll_body, -_parameters.man_roll_max, _parameters.man_roll_max);
 					_att_sp.pitch_body = -_manual.x * _parameters.man_pitch_max + _parameters.pitchsp_offset_rad;
 					_att_sp.pitch_body = math::constrain(_att_sp.pitch_body, -_parameters.man_pitch_max, _parameters.man_pitch_max);
-					_att_sp.yaw_body = 0.0f;
+					_att_sp.yaw_body = _manual.r * _parameters.man_roll_max;
 					_att_sp.thrust = _manual.z;
 					int instance;
 					orb_publish_auto(ORB_ID(vehicle_attitude_setpoint), &_attitude_sp_pub, &_att_sp, &instance, ORB_PRIO_DEFAULT);
@@ -992,11 +991,6 @@ FixedwingAttitudeControl::task_main()
 				pitch_sp = _att_sp.pitch_body;
 				yaw_sp = _att_sp.yaw_body;
 				throttle_sp = _att_sp.thrust;
-
-				/* allow manual yaw in manual modes */
-				if (_vcontrol_mode.flag_control_manual_enabled) {
-					yaw_manual = _manual.r;
-				}
 
 				/* reset integrals where needed */
 				if (_att_sp.roll_reset_integral) {
@@ -1112,9 +1106,6 @@ FixedwingAttitudeControl::task_main()
 
 					_actuators.control[2] = (PX4_ISFINITE(yaw_u)) ? yaw_u + _parameters.trim_yaw : _parameters.trim_yaw;
 
-					/* add in manual rudder control */
-					_actuators.control[2] += yaw_manual;
-
 					if (!PX4_ISFINITE(yaw_u)) {
 						_yaw_ctrl.reset_integrator();
 						_wheel_ctrl.reset_integrator();
@@ -1152,7 +1143,7 @@ FixedwingAttitudeControl::task_main()
 				 */
 				_rates_sp.roll = _roll_ctrl.get_desired_rate();
 				_rates_sp.pitch = _pitch_ctrl.get_desired_rate();
-				_rates_sp.yaw = _yaw_ctrl.get_desired_rate();
+				_rates_sp.yaw =_yaw_ctrl.get_desired_rate();
 
 				_rates_sp.timestamp = hrt_absolute_time();
 
