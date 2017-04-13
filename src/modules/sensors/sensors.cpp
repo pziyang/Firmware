@@ -1125,7 +1125,7 @@ Sensors::parameters_update()
 		}
 		else 
 		{
-			_parameters.sid_manoeuvre == 0;
+			_parameters.sid_manoeuvre = 0;
 			mavlink_and_console_log_info(&_mavlink_log_pub, "invalid sid_testcard #%i", _parameters.sid_testcard);
 		}
 	}
