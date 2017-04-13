@@ -11,32 +11,6 @@ M: 1
 O:      10000  10000      0 -10000  10000
 S: 0 3  0      20000 -10000 -10000  10000
 
-M2, M4 mixer
------------------
-Throttle is from Control Group #0, Channel 3
-Roll is from Control Group #0, Channel 0
-
-M: 2
-O:      10000  10000     0  -10000  10000
-S: 0 3  0      20000 -10000 -10000  10000
-S: 0 0  2500   2500      0  -10000  10000
-
-T1-T4 mixer
------------------
-Pitch is from Control Group #0, Channel 1
-
-M: 1
-O:      10000  10000      0 -10000  10000
-S: 0 1  10000  10000      0 -10000  10000
-
-Roll Spoiler mixer
------------------
-Yaw is from Control Group #0, Channel 2
-
-M: 1
-O:      10000  10000      0 -10000  10000
-S: 0 2  -10000  -10000      0 -10000  10000
-
 M1, M3 mixer
 -----------------
 Throttle is from Control Group #0, Channel 3
@@ -45,11 +19,52 @@ Roll is from Control Group #0, Channel 0
 M: 2
 O:      10000  10000     0  -10000  10000
 S: 0 3  0      20000 -10000 -10000  10000
-S: 0 0  -2500  -2500      0 -10000  10000
+S: 0 2  2500  2500      0 -10000  10000
+
+M2, M4 mixer
+-----------------
+Throttle is from Control Group #0, Channel 3
+Roll is from Control Group #0, Channel 0
+
+M: 2
+O:      10000  10000     0  -10000  10000
+S: 0 3  0      20000 -10000 -10000  10000
+S: 0 2  -2500   -2500      0  -10000  10000
+
+T1, T3 mixer
+-----------------
+Pitch is from Control Group #0, Channel 1
+
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 0 1  10000  10000      0 -10000  10000
+
+T2, T4 mixer
+-----------------
+Pitch is from Control Group #0, Channel 1
+
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 0 1  10000  10000      0 -10000  10000
+
+Ail Left mixer
+-----------------
+Yaw is from Control Group #0, Channel 2
+
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 0 0  -10000  -10000      0 -10000  10000
+
+Ail Right mixer
+-----------------
+Yaw is from Control Group #0, Channel 2
+
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 0 0  -10000  -10000      0 -10000  10000
 
 T0 mixer
 -----------------
 M: 1
 O:      10000  10000      0 -10000  10000
 S: 0 4  10000  10000      0 -10000  10000
-
