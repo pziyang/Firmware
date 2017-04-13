@@ -1094,6 +1094,7 @@ Sensors::parameters_update()
 
 	//get system id
 	param_get(_parameter_handles.sid_manoeuvre, &(_parameters.sid_manoeuvre));
+	mavlink_and_console_log_info(&_mavlink_log_pub, "sid_manoeuver = #%i", _parameters.sid_manoeuvre);
 	
 	if (_parameters.sid_manoeuvre == 2) //manual input from QGC
 	{
@@ -1110,20 +1111,22 @@ Sensors::parameters_update()
 	{
 		param_get(_parameter_handles.sid_testcard, &(_parameters.sid_testcard));
 		
-		if(_parameter_handles.sid_testcard > 0 &&
-			_parameter_handles.sid_testcard < _ncase ) //check that input is valid
+		if(_parameters.sid_testcard >= 0 &&
+			_parameters.sid_testcard < _ncase ) //check that input is valid
 		{
-			_parameter_handles.sid_channel = _testcards[_parameter_handles.sid_testcard].channel;
-			_parameter_handles.sid_amplitude = _testcards[_parameter_handles.sid_testcard].amp;
-			_parameter_handles.sid_on_time = _testcards[_parameter_handles.sid_testcard].on_time;
-			_parameter_handles.sid_trim_time_b = _testcards[_parameter_handles.sid_testcard].time_b;
-			_parameter_handles.sid_trim_time_a = _testcards[_parameter_handles.sid_testcard].time_a;
-			_parameter_handles.sid_start_freq = _testcards[_parameter_handles.sid_testcard].freq_start;
-			_parameter_handles.sid_stop_freq = _testcards[_parameter_handles.sid_testcard].freq_stop;
+			_parameters.sid_channel = _testcards[_parameters.sid_testcard].channel;
+			_parameters.sid_amplitude = _testcards[_parameters.sid_testcard].amp;
+			_parameters.sid_on_time = _testcards[_parameters.sid_testcard].on_time;
+			_parameters.sid_trim_time_b = _testcards[_parameters.sid_testcard].time_b;
+			_parameters.sid_trim_time_a = _testcards[_parameters.sid_testcard].time_a;
+			_parameters.sid_start_freq = _testcards[_parameters.sid_testcard].freq_start;
+			_parameters.sid_stop_freq = _testcards[_parameters.sid_testcard].freq_stop;
+			mavlink_and_console_log_info(&_mavlink_log_pub, "sid_testcard = %i", _parameters.sid_testcard);
 		}
 		else 
 		{
-			_parameter_handles.sid_channel = 0; //disable input
+			_parameters.sid_manoeuvre == 0;
+			mavlink_and_console_log_info(&_mavlink_log_pub, "invalid sid_testcard #%i", _parameters.sid_testcard);
 		}
 	}
 
@@ -2580,6 +2583,10 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 	static uint64_t starting_time = 0;
 	static int _prev_sysid_sw_pos = manual_control_setpoint_s::SWITCH_POS_OFF;
 	static float signal_injection = 0.0f;
+	
+	//check that system id is required
+	if (_parameters.sid_manoeuvre != 1 || _parameters.sid_manoeuvre != 2)
+		return;
 
 	//check for toggle on from toggle off. This is to fix the starting time and start signal injection
 	if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_ON)
@@ -2629,7 +2636,7 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 		signal_injection = 0.0;
 	}
 
-	switch (_parameters.sid_manoeuvre)
+	switch (_parameters.sid_channel)
 	{
 		case 1:
 			manual->x += signal_injection;
