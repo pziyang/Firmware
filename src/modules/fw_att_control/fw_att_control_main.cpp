@@ -1062,7 +1062,7 @@ FixedwingAttitudeControl::task_main()
 					/* Update input data for rate controllers */
 					control_input.roll_rate_setpoint = _roll_ctrl.get_desired_rate();
 					control_input.pitch_rate_setpoint = _pitch_ctrl.get_desired_rate();
-					control_input.yaw_rate_setpoint = yaw_manual;
+					control_input.yaw_rate_setpoint = yaw_manual * _parameters.man_roll_max;
 
 					/* Run attitude RATE controllers which need the desired attitudes from above, add trim */
 					float roll_u = _roll_ctrl.control_bodyrate(control_input);
@@ -1149,7 +1149,7 @@ FixedwingAttitudeControl::task_main()
 				 */
 				_rates_sp.roll = _roll_ctrl.get_desired_rate();
 				_rates_sp.pitch = _pitch_ctrl.get_desired_rate();
-				_rates_sp.yaw = _yaw_ctrl.get_desired_rate();
+				_rates_sp.yaw = control_input.yaw_rate_setpoint;
 
 				_rates_sp.timestamp = hrt_absolute_time();
 
