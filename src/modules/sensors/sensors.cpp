@@ -2585,7 +2585,7 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 	static float signal_injection = 0.0f;
 	
 	//check that system id is required
-	if (_parameters.sid_manoeuvre != 1 || _parameters.sid_manoeuvre != 2)
+	if (_parameters.sid_manoeuvre != 1 && _parameters.sid_manoeuvre != 2)
 		return;
 
 	//check for toggle on from toggle off. This is to fix the starting time and start signal injection
