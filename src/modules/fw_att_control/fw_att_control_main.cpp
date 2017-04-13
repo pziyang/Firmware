@@ -972,7 +972,6 @@ FixedwingAttitudeControl::task_main()
 				float roll_sp = _parameters.rollsp_offset_rad;
 				float pitch_sp = _parameters.pitchsp_offset_rad;
 				float yaw_sp = 0.0f;
-				float yaw_manual = 0.0f;
 				float throttle_sp = 0.0f;
 
 				// in STABILIZED mode we need to generate the attitude setpoint
@@ -992,11 +991,6 @@ FixedwingAttitudeControl::task_main()
 				pitch_sp = _att_sp.pitch_body;
 				yaw_sp = _att_sp.yaw_body;
 				throttle_sp = _att_sp.thrust;
-
-				/* allow manual yaw in manual modes */
-				if (_vcontrol_mode.flag_control_manual_enabled) {
-					yaw_manual = _manual.r;
-				}
 
 				/* reset integrals where needed */
 				if (_att_sp.roll_reset_integral) {
@@ -1167,7 +1161,7 @@ FixedwingAttitudeControl::task_main()
 				_actuators.control[actuator_controls_s::INDEX_ROLL] = _manual.y * _parameters.man_roll_scale + _parameters.trim_roll;
 				_actuators.control[actuator_controls_s::INDEX_PITCH] = -_manual.x * _parameters.man_pitch_scale +
 						_parameters.trim_pitch;
-				_actuators.control[actuator_controls_s::INDEX_YAW] = yaw_manual * _parameters.man_yaw_scale + _parameters.trim_yaw;
+				_actuators.control[actuator_controls_s::INDEX_YAW] = _manual.r * _parameters.man_yaw_scale + _parameters.trim_yaw;
 				_actuators.control[actuator_controls_s::INDEX_THROTTLE] = _manual.z;
 			}
 
