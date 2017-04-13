@@ -41,6 +41,7 @@ px4_add_module(
 	SRCS
 		sensors.cpp
 		sensors_init.cpp
+		testcard_init.cpp
 
 	DEPENDS
 		platforms__common

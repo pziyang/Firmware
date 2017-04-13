@@ -64,6 +64,7 @@
 #include <errno.h>
 #include <math.h>
 #include <mathlib/mathlib.h>
+#include <vector>
 
 #include <drivers/drv_hrt.h>
 #include <drivers/drv_accel.h>
@@ -103,6 +104,7 @@
 #include <DevMgr.hpp>
 
 #include "sensors_init.h"
+#include "testcards.h"
 
 using namespace DriverFramework;
 
@@ -359,6 +361,8 @@ private:
 		bool rc_sysid_inv;
 
 		int sid_manoeuvre;
+		int sid_testcard;
+		int sid_channel;
 		float sid_amplitude;
 		float sid_on_time;
 		float sid_trim_time_b;
@@ -442,6 +446,8 @@ private:
 		param_t rc_sysid_th;
 		
 		param_t sid_manoeuvre;
+		param_t sid_testcard;
+		param_t sid_channel;		
 		param_t sid_amplitude;
 		param_t sid_on_time;
 		param_t sid_trim_time_b;
@@ -583,6 +589,9 @@ private:
 	 * Check if system id is performed
 	 */
 	void check_sysid_manoeuvre(manual_control_setpoint_s *manual);
+	
+	testcard_s* _testcards;
+	int _ncase;
 };
 
 namespace sensors
@@ -699,6 +708,8 @@ Sensors::Sensors() :
 	_parameter_handles.rc_sysid_th = param_find("RC_SYSID_TH");
 	
 	_parameter_handles.sid_manoeuvre = param_find("SID_MANOEUVRE");
+	_parameter_handles.sid_testcard = param_find("SID_TESTCARD");
+	_parameter_handles.sid_channel = param_find("SID_CHANNEL");
 	_parameter_handles.sid_amplitude = param_find("SID_AMPLITUDE");
 	_parameter_handles.sid_on_time = param_find("SID_ON_TIME");
 	_parameter_handles.sid_trim_time_b = param_find("SID_TRIM_TIME_B");
@@ -1081,13 +1092,43 @@ Sensors::parameters_update()
 
 	_board_rotation = board_rotation_offset * _board_rotation;
 
+	//get system id
 	param_get(_parameter_handles.sid_manoeuvre, &(_parameters.sid_manoeuvre));
-	param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
-	param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
-	param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
-	param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
-	param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
-	param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));
+	mavlink_and_console_log_info(&_mavlink_log_pub, "sid_manoeuver = #%i", _parameters.sid_manoeuvre);
+	
+	if (_parameters.sid_manoeuvre == 2) //manual input from QGC
+	{
+		param_get(_parameter_handles.sid_amplitude, &(_parameters.sid_amplitude));
+		param_get(_parameter_handles.sid_channel, &(_parameters.sid_channel));
+		param_get(_parameter_handles.sid_on_time, &(_parameters.sid_on_time));
+		param_get(_parameter_handles.sid_trim_time_b, &(_parameters.sid_trim_time_b));
+		param_get(_parameter_handles.sid_trim_time_a, &(_parameters.sid_trim_time_a));
+		param_get(_parameter_handles.sid_start_freq, &(_parameters.sid_start_freq));
+		param_get(_parameter_handles.sid_stop_freq, &(_parameters.sid_stop_freq));	
+	}
+	
+	if (_parameters.sid_manoeuvre == 1) //load test cards
+	{
+		param_get(_parameter_handles.sid_testcard, &(_parameters.sid_testcard));
+		
+		if(_parameters.sid_testcard >= 0 &&
+			_parameters.sid_testcard < _ncase ) //check that input is valid
+		{
+			_parameters.sid_channel = _testcards[_parameters.sid_testcard].channel;
+			_parameters.sid_amplitude = _testcards[_parameters.sid_testcard].amp;
+			_parameters.sid_on_time = _testcards[_parameters.sid_testcard].on_time;
+			_parameters.sid_trim_time_b = _testcards[_parameters.sid_testcard].time_b;
+			_parameters.sid_trim_time_a = _testcards[_parameters.sid_testcard].time_a;
+			_parameters.sid_start_freq = _testcards[_parameters.sid_testcard].freq_start;
+			_parameters.sid_stop_freq = _testcards[_parameters.sid_testcard].freq_stop;
+			mavlink_and_console_log_info(&_mavlink_log_pub, "sid_testcard = %i", _parameters.sid_testcard);
+		}
+		else 
+		{
+			_parameters.sid_manoeuvre = 0;
+			mavlink_and_console_log_info(&_mavlink_log_pub, "invalid sid_testcard #%i", _parameters.sid_testcard);
+		}
+	}
 
 	/* update barometer qnh setting */
 	param_get(_parameter_handles.baro_qnh, &(_parameters.baro_qnh));
@@ -2333,6 +2374,9 @@ Sensors::task_main()
 
 	/* This calls a sensors_init which can have different implementations on NuttX, POSIX, QURT. */
 	ret = sensors_init();
+	
+	/* This loads the test cards */
+	ret = testcard_init(_testcards, _ncase);
 
 #if !defined(__PX4_QURT) && !defined(__PX4_POSIX_RPI) && !defined(__PX4_POSIX_BEBOP)
 	// TODO: move adc_init into the sensors_init call.
@@ -2539,6 +2583,10 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 	static uint64_t starting_time = 0;
 	static int _prev_sysid_sw_pos = manual_control_setpoint_s::SWITCH_POS_OFF;
 	static float signal_injection = 0.0f;
+	
+	//check that system id is required
+	if (_parameters.sid_manoeuvre != 1 && _parameters.sid_manoeuvre != 2)
+		return;
 
 	//check for toggle on from toggle off. This is to fix the starting time and start signal injection
 	if ((manual->sysid_switch == manual_control_setpoint_s::SWITCH_POS_ON)
@@ -2588,7 +2636,7 @@ Sensors::check_sysid_manoeuvre(manual_control_setpoint_s *manual)
 		signal_injection = 0.0;
 	}
 
-	switch (_parameters.sid_manoeuvre)
+	switch (_parameters.sid_channel)
 	{
 		case 1:
 			manual->x += signal_injection;

@@ -3306,16 +3306,36 @@ PARAM_DEFINE_FLOAT(SID_START_FREQ, 0.1f);
 PARAM_DEFINE_FLOAT(SID_STOP_FREQ, 5.0f);
 
 /**
-* Define the Manoever
+* Define the Manoever Input (Disabled/Testcard/Manual)
 *
 * @min 0
 * @max 4
 * @unit
 * @value 0 Disabled
-* @value 1 Pitch
-* @value 2 Roll
-* @value 3 Yaw
-* @value 4 Throttle
-* @group SysID
+	@value 1 Testcard
+	@value 2 Manual input
 */
 PARAM_DEFINE_INT32(SID_MANOEUVRE, 0);
+
+/**
+* Define the Manoever Channel
+*
+* @min 0
+* @max 4
+* @unit
+* @value 0 Disabled
+	@value 1 
+	@value 2 
+	@value 3 
+	@value 4 
+*/
+PARAM_DEFINE_INT32(SID_CHANNEL, 0);
+
+/**
+* Define the Testcard
+*
+* @min 0
+* @max 100
+* @unit
+*/
+PARAM_DEFINE_INT32(SID_TESTCARD, 0);
