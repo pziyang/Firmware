@@ -982,7 +982,7 @@ FixedwingAttitudeControl::task_main()
 					_att_sp.roll_body = math::constrain(_att_sp.roll_body, -_parameters.man_roll_max, _parameters.man_roll_max);
 					_att_sp.pitch_body = -_manual.x * _parameters.man_pitch_max + _parameters.pitchsp_offset_rad;
 					_att_sp.pitch_body = math::constrain(_att_sp.pitch_body, -_parameters.man_pitch_max, _parameters.man_pitch_max);
-					_att_sp.yaw_body = 0.0f;
+					_att_sp.yaw_body = _manual.r * _parameters.man_roll_max;
 					_att_sp.thrust = _manual.z;
 					int instance;
 					orb_publish_auto(ORB_ID(vehicle_attitude_setpoint), &_attitude_sp_pub, &_att_sp, &instance, ORB_PRIO_DEFAULT);
@@ -1062,7 +1062,7 @@ FixedwingAttitudeControl::task_main()
 					/* Update input data for rate controllers */
 					control_input.roll_rate_setpoint = _roll_ctrl.get_desired_rate();
 					control_input.pitch_rate_setpoint = _pitch_ctrl.get_desired_rate();
-					control_input.yaw_rate_setpoint = yaw_manual * _parameters.man_roll_max;
+					control_input.yaw_rate_setpoint = _yaw_ctrl.get_desired_rate();
 
 					/* Run attitude RATE controllers which need the desired attitudes from above, add trim */
 					float roll_u = _roll_ctrl.control_bodyrate(control_input);
@@ -1149,7 +1149,7 @@ FixedwingAttitudeControl::task_main()
 				 */
 				_rates_sp.roll = _roll_ctrl.get_desired_rate();
 				_rates_sp.pitch = _pitch_ctrl.get_desired_rate();
-				_rates_sp.yaw = control_input.yaw_rate_setpoint;
+				_rates_sp.yaw =_yaw_ctrl.get_desired_rate();
 
 				_rates_sp.timestamp = hrt_absolute_time();
 
