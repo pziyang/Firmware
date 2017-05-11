@@ -410,16 +410,14 @@ PARAM_DEFINE_FLOAT(FW_YCO_VMIN, 1000.0f);
  * The param value sets the method used to calculate the yaw rate
  * 0: open-loop zero lateral acceleration based on kinematic constraints
  * 1: closed-loop: try to reduce lateral acceleration to 0 by measuring the acceleration
- * 2: rate control only
- *
+
  * @min 0
- * @max 2
+ * @max 1
  * @value 0 open-loop
  * @value 1 closed-loop
- * @value 2 rate loop
  * @group FW Attitude Control
  */
-PARAM_DEFINE_INT32(FW_YCO_METHOD, 2);
+PARAM_DEFINE_INT32(FW_YCO_METHOD, 1);
 
 /**
  * Roll Setpoint Offset
