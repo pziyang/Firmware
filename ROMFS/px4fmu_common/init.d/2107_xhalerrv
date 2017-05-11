@@ -28,7 +28,42 @@ fi
 
 # Configure this as plane
 set MAV_TYPE 1
+
 # Set mixer
 set MIXER xhale_rrv
+
 # Set output for Main Channel 1 to 8
+#set min/max PWM manually using pwm application
 set PWM_OUT 12345678
+
+#set yaw autopilot
+set FW_FCO_METHOD 1
+set FW_FCO_VMIN 0
+
+#set RC mapping
+set RC_MAP_FLAP 5
+set RC_MAP_PITCH 2
+set RC_MAP_ROLL 3
+set RC_MAP_YAW 1
+set RC_MAP_THROTTLE 4
+set RC_MAP_FLTMODE 8
+set RC_MAP_MODE_SW 0
+
+#set flightmode
+set COM_FLTMODE1 0
+set COM_FLTMODE2 8
+set COM_FLTMODE6 8
+
+#set FW_ATTC param
+set FW_PR_IMAX 0.4
+set FW_P_LIM_MAX 45
+set FW_P_LIM_MIN -45
+set FW_P_RMAX_NEG 60
+set FW_P_RMAX_POS 60
+
+set FW_RR_IMAX 0.2
+set FW_R_LIM 50
+set FW_R_RMAX 70
+
+set FW_YR_IMAX 0.2
+set FW_Y_RMAX 0
