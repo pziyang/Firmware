@@ -35,6 +35,8 @@ set MIXER xhale_rrv
 # Set output for Main Channel 1 to 8
 #set min/max PWM manually using pwm application
 set PWM_OUT 12345678
+set PWM_MAX 1800
+set PWM_MIN 1200
 
 #set yaw autopilot
 set FW_FCO_METHOD 1

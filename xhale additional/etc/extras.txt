@@ -1,0 +1,3 @@
+# set roll spoiler to have full deflection
+pwm min -c 67 -p 1000
+pwm max -c 67 -p 2000
