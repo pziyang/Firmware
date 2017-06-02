@@ -2,10 +2,13 @@ set moddebug 0
 module load graph
 @graph timespan 30
 @alias add g graph
-@alias add gattrate g ATTITUDE.pitchspeed ATTITUDE.rollspeed ATTITUDE.yawspeed
-@alias add gatt g ATTITUDE.pitch ATTITUDE.roll ATTITUDE.yaw
+@alias add gattrate g degrees(ATTITUDE.pitchspeed) degrees(ATTITUDE.rollspeed) degrees(ATTITUDE.yawspeed)
+@alias add gatt g degrees(ATTITUDE.pitch) degrees(ATTITUDE.roll)
+@alias add gservo g SERVO_OUTPUT_RAW.servo1_raw SERVO_OUTPUT_RAW.servo2_raw SERVO_OUTPUT_RAW.servo3_raw SERVO_OUTPUT_RAW.servo4_raw
 @alias add gvel g GLOBAL_POSITION_INT.vx*0.01 GLOBAL_POSITION_INT.vy*0.01 GLOBAL_POSITION_INT.vz*0.01
 @alias add grc g RC_CHANNELS_RAW.chan1_raw RC_CHANNELS_RAW.chan2_raw RC_CHANNELS_RAW.chan3_raw RC_CHANNELS_RAW.chan4_raw RC_CHANNELS_RAW.chan5_raw RC_CHANNELS_RAW.chan6_raw RC_CHANNELS_RAW.chan7_raw RC_CHANNELS_RAW.chan8_raw
-@alias add gapp g ATTITUDE.pitchspeed ATTITUDE_TARGET.pitchspeed ATTITUDE.pitch ATTITUDE_TARGET.pitch
-@alias add gapr g ATTITUDE.rollspeed ATTITUDE_TARGET.rollspeed ATTITUDE.roll ATTITUDE_TARGET.roll
-@alias add gapy g ATTITUDE.yawspeed ATTITUDE_TARGET.yawspeed
+@alias add gapp g degrees(ATTITUDE.pitchspeed) degrees(ATTITUDE_TARGET.pitchspeed) degrees(ATTITUDE.pitch ATTITUDE_TARGET.pitch)
+@alias add gapr g degrees(ATTITUDE.rollspeed) degrees(ATTITUDE_TARGET.rollspeed) degrees(ATTITUDE.roll ATTITUDE_TARGET.roll)
+@alias add gapy g degrees(ATTITUDE.yawspeed) degrees(ATTITUDE_TARGET.yawspeed)
+@alias add gaccel g RAW_IMU.xacc*9.81*0.001 RAW_IMU.yacc*9.81*0.001 RAW_IMU.zacc*9.81*0.001 gravity(RAW_IMU)
+@alias add ghud g VFR_HUD.airspeed VFR.groundspeed 
